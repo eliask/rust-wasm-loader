@@ -74,12 +74,15 @@ module.exports = function(source) {
       return {
         // Returns a promise that resolves when the wasm runtime is initialized and ready for use
         initialize: function(userDefinedModule) {
-          return new Promise((resolve, reject) => {
+          // The Emscripten stuff in $out depends on arguments from initialize().
+          var _arguments = arguments
+          return new Promise(function (resolve, reject) {
             if (!userDefinedModule) {
               userDefinedModule = {}
             }
-            var Module = Object.assign({}, userDefinedModule, existingModule);
-            Module['onRuntimeInitialized'] = () => resolve(Module);
+            var Module = Object.assign({}, userDefinedModule, existingModule)
+            Module['onRuntimeInitialized'] = function() { return resolve(Module) }
+            arguments = _arguments
             \n${out}\n
           });
         }
